@@ -1,0 +1,385 @@
+% !TeX program = pdflatex
+% !TeX encoding = UTF-8
+% !TeX spellcheck = en_US
+
+\documentclass[11pt]{article}
+\usepackage{fullpage}
+\usepackage{amsmath}
+\usepackage{graphicx,amsfonts,amsmath,amssymb,epsfig,color,multicol,pstricks}
+\input{pream}
+
+\title{Influencing elections}
+\date{}
+
+\begin{document}
+\maketitle
+\section{Introduction}
+We are going to study how people changing their votes from current day to the election day affects the outcome of the election. 
+
+In this problem(paper)? we study how the chances of a candidate winning are affected by people changing their vote with a certain probability. %We look at the probability of the candidate winning  
+Every voting system is nothing but a boolean function 
+ $f:\{0,1\}^{n} \rightarrow \{0,1\}$ e.g Majority.
+we will start by considering Majority function and later extend it to other functions.\\
+\noindent
+ $X =$  people's current preferences \\ \noindent
+ $Y =$  people's preferences on election day
+
+\subsection{Unbiased Noise}
+
+$Y$ could be defined in multiple ways, but the simplest and most intuitive definition of $Y$ is the following:
+% First possible definition of  \\
+\begin{equation*}
+ y_i  =\begin{cases}
+ x_i , & \text{w.p  $1-\rho$ }.\\
+ 1-x_i , & \text{w.p  $\rho$ }.
+\end{cases}
+\end{equation*}
+
+ \BD $T_{\rho}(f,x)$ = $\underset{y \sim N_{\rho}(x)}{\mathbb{E}}[f(y)]$ 
+ \ED 
+ 
+\noindent $T_{\rho}(f,x)$ is the probability candidate $1$ wins. By candidate 1 winning we mean the output of the boolean function is 1. The main question we consider is how many bits of x must I query to estimate $T_{\rho}(f,x)$ up to some error $\pm \gamma $ with confidence $1-\delta$? 
+
+
+
+\subsubsection{Observations}
+\BP With $\rho = 0$, we might need $\Omega(n)$ queries when $\|X\|$ $\simeq$ $\frac{n}{2}$  (for f = Majority).\EP
+\BPF
+As $\rho=0$, $f(y) = f(x) = constant$,  $T_{\rho}(f,x) = f(x)$ is either $0$ or $1$. In this case talking about $\epsilon$ doesn't make much sense as the error is either $0$ or $1$. So the question reduces to estimating the value of $f(x)$ correctly with probability $1-\delta$. Consider the case where input has $n+1$ bits, out of these $\frac{n}{2}$ are $0's$, $\frac{n}{2}$ are $1's$ and one of them is a qubit with state $\frac{1}{\sqrt{2}}(|0\rangle + |1\rangle)$. The answer to this function depends on which state the qubit collapses to, So if the person does not query the qubit any estimate of $f(x)$ he/she gives is correct only with probability $\frac{1}{2}$. The person should query the qubit with probability at least $1-2\delta$ otherwise the probability that he will give a wrong estimate will be greater than $\delta$. That means he has to make at least $(1-2\delta)n$ queries as he doesen't know which of the bits is the qubit. Hence number of queries required is $\Omega(n)$.
+ \EPF
+
+\BP For $\rho= \frac{1}{2}$, we need 0 queries. \EP
+\BPF
+Since $\rho = 0$, each bit will be $0$ with probability $\frac{1}{2}$ and $1$ with probability $\frac{1}{2}$. So $f(y)=0$ with probability $\frac{1}{2}$ and $f(y)=1$ with probability $\frac{1}{2}$. Hence $T_{\rho}(f,x)= \frac{1}{2}$ and we don't need to make any queries. 
+\EPF \\
+
+ \noindent
+As for $\rho = 0$ it takes $\Omega (n)$ queries and for $\rho = \frac{1}{2}$ it takes 0. It will be interesting to see what will be the number of queries need for $\rho = \frac{1}{4}$. \\\\
+\noindent
+An alternate definition of y could be:
+
+\begin{equation}
+y_i  =\begin{cases}
+1 , & \text{if $x_i = 1$ }.\\
+1 , & \text{w.p $\rho$ if $x_i = 0$ }.\\
+0 , & \text{w.p $1- \rho$ if $x_i = 0$ }.
+\end{cases}
+\end{equation}
+
+\subsubsection{Unbiased Noise Operator on Majority function}
+
+We will be looking at $\rho= \omega (\frac{1}{n})$ and $\rho \leq \frac{1}{2}$.
+
+\BT
+We can estimate $T_{\rho} \otimes Maj(X)$ to accuracy $\pm \gamma$ with $q=??$ queries. 
+\ET
+
+\BL
+To estimate $\frac{\|X\|}{n}$ up to $\pm \epsilon$ with confidence 1-$\delta$, $O(\frac{1}{\epsilon^2}log\frac{1}{\delta})$ queries will suffice. 
+\EL
+\BPF
+This can be proved using the Chernoff bound 
+
+$$Pr[a \geq (1+\epsilon)\mu b] \leq e^{\frac{- \epsilon^2 \mu b}{3}}, Pr[a \leq (1-\epsilon)\mu b] \leq e^{\frac{- \epsilon^2 \mu b}{3}}$$
+\noindent
+Where $a$ = Number of $1's$ encountered, $b$ = Number of bits queried and $\mu = \frac{\|X\|}{n}$. By upper bounding the sum of these probabilities by $\delta$ we get b = $O(\frac{1}{\epsilon^2}log\frac{1}{\delta})$.
+\EPF
+
+ One approach could be to relate the error of  $T_\rho \otimes Maj(X) $ and the error in fraction of 1's. That way we will be able to make an estimate on how many queries we need to make to get a good estimate on $T_{\rho} \otimes Maj(X) $, as we already know a relation between the error in fraction of 1's and number of queries. \\
+
+
+\BCM
+
+Let $A \sim Bin(\alpha n, \rho)$, $B \sim Bin((1-\alpha)n, \rho)$, $\alpha = \frac{\|x\|}{n}$ and $y \sim N_{\rho}(x)$. Then $$T_\rho(Maj, x) = \Pr[B - A \geq (\frac{1}{2} - \alpha)n].$$
+
+\ECM
+
+\BPF
+
+Let $$A = \big| \{ i \in [n]: x_i = 1, y_i = 0\} \big|, B = \big| \{ i \in [n]: x_i = 0, y_i = 1\} \big|$$ Then $$A \sim Bin(\alpha n, \rho), B \sim Bin((1-\alpha)n,\rho).$$ We know that $\|y\| = \alpha n - A + B$. So $$T_\rho(Maj, x) = \Pr[\|y\| \geq \frac{n}{2}] = \Pr[\alpha n - A + B \geq \frac{n}{2}] = \Pr[B - A \geq (\frac{1}{2} - \alpha)n]$$
+
+\EPF
+
+\BT
+\textbf{(Berry-Esseen Theorem)} Let $X_1 , . . . . , X_n$ be independent random variables with $\textbf{E}[X_i]=0$ and $\textbf{Var}[X_i] = \sigma^{2}_{i}$, and assume $\sum_{i=1}^{n} \sigma^{2}_{i} = 1$. Let $\textbf{S}= \sum_{i=1}^{n} X_i$ and let $Z \sim N(0, 1)$ be a standard Gaussian. Then for all $u \in \mathbf{R}$, $$\big| \Pr[S \leq u] - \Pr[Z \leq u] \big| \leq c\gamma,$$ where $$\gamma = \sum\limits_{i=1}^{n} \|X_i\|^{3}_{3}$$ and c is a universal constant. 
+
+\ET
+
+\BCM
+If $Z,Z^{'} \sim \textbf{N}(0,1)$. Then $$\big| \Pr[Z\leq t] - \Pr[Z^{'} \leq t^{'}] \big|$$ $$= \big| \Pr[Z\leq t] - \Pr[Z \leq t^{'}] \big| $$  $$= \Pr[min(t^{'},t) < Z \leq max(t^{'},t)] \leq  O\Big( \frac{|t-t^{'}|}{\sqrt{n}} \Big)$$
+
+\ECM
+
+\BCM
+Let  $A = Bin(\alpha n, \rho)$, $B = Bin((1-\alpha)n, \rho)$. Let 
+
+\begin{equation}
+X  =\begin{cases}
+1 , & \text{w.p $\rho$ }\\
+0 , & \text{w.p $1-\rho$ }
+\end{cases}
+\end{equation}
+and 
+\begin{equation}
+X^{'}  =\begin{cases}
+-1 , & \text{w.p $\rho$ }\\
+0 , & \text{w.p $1-\rho$ }
+\end{cases}
+\end{equation}
+
+$X_1,...., X_{(1-\alpha)n} \sim X$ and $X_{(1-\alpha)n + 1}, ....., X_n \sim X^{'}$ and $$Y_i = \frac{X_i - E[X_i]}{\sqrt{n Var[X_i]}}$$
+
+ Let $S = \sum_{i=1}^{n}Y_i$. Then $$\Pr\bigg[B-A \leq (\frac{1}{2} - \alpha)n\bigg] = \Pr\bigg[S \leq (\frac{1}{2} - \alpha)\sqrt{n} \frac{1-2\rho}{\sqrt{\rho(1-\rho)}}   \bigg]$$
+\ECM
+
+\BPF
+We know that Binomial random variables can be written as sum of Bernoulli random variables. Hence $$\Pr\bigg[B-A \leq (\frac{1}{2} - \alpha)n\bigg] = \Pr\bigg[\sum_{i=1}^{n} X_i \leq (\frac{1}{2} - \alpha)n\bigg]$$ $$ = \Pr \Bigg[\frac{\sum_{i=1}^{n} X_i - \sum_{i=1}^{n} E[X_i]}{\sqrt{nVar[X]}} \leq \frac{(\frac{1}{2} - \alpha)n - \sum_{i=1}^{n} E[X_i]}{\sqrt{nVar[X]}}\Bigg]$$ $$ = \Pr\Bigg[S \leq \frac{(\frac{1}{2} - \alpha)n - \sum_{i=1}^{n} E[X_i]}{\sqrt{nVar[X]}}\Bigg] $$ Since $Var[X_1]= Var[X_2]= .... = Var[X_n] = Var[X] = \rho(1-\rho)$.  $E[X_1] = E[X_2] = ... = E[X_{(1-\alpha)n}] = -E[X_{(1-\alpha)n + 1}] = ... = -E[X_n] = \rho$, so $\sum_{i=1}^{n} E[X_1] = (\frac{1}{2} - \alpha)2\rho n$. Substituting these values the above formula simplifies to  $$  \Pr\bigg[S \leq (\frac{1}{2} - \alpha)\sqrt{n} \frac{1-2\rho}{\sqrt{\rho(1-\rho)}} \bigg] $$
+\EPF
+
+\BCM
+Let $Z\sim N(0,1)$ and $S= \sum_{i=1}^{n}Y_i $ where $Y_1, Y_2,..., Y_n, X_1,...., X_n, X, X^{'}$ are same as described in Claim 1.8. Then for all $u\in \mathbf{R}$ $$\big| \Pr[S \leq u] - \Pr[Z \leq u] \big| \leq c \frac{1}{\sqrt{n}} \Big( \frac{\rho^2 + (1-\rho)^2}{\sqrt{\rho(1-\rho)}} \Big)$$ Where c is a constant.
+
+\ECM
+
+\BPF
+Here we can use Theorem 1.6 because for all i $E[Y_i] = 0$ and $\sum_{i=1}^{n}Var[Y_i] = 1$ By applying Theorem 1.6 we get $$\big| \Pr[S \leq u] - \Pr[Z \leq u] \big| \leq c\gamma,$$ where $\gamma = \sum\limits_{i=1}^{n} \|Y_i\|^{3}_{3}$. Lets calculate $\gamma$ in this case and plug it in.  $$ \gamma = \sum_{i=1}^{n}E[|Y_i|^3]$$ On substituting $Y_i$ we get 
+$$\gamma = \sum_{i=1}^{n}E\Bigg[ \frac{|X_i - E[X_i]|^3}{|nVar[X_i]|^{\frac{3}{2}}} \Bigg]$$
+Since the value of $Var[X_i] = Var[X]$ for all $i$ we can bring $nVar[X]$ outside summation.
+$$ \gamma= \frac{1}{(nVar[X])^{\frac{3}{2}}} \sum_{i=1}^{n} E[|X_i - E[X_i]|^3]$$
+On calculating the expectation we get
+$$ \gamma= \frac{1}{(nVar[X])^{\frac{3}{2}}} \sum_{i=1}^{n} (\rho(1-\rho)^3 + (1-\rho)\rho^3)$$
+$$ \gamma= \frac{n\rho(1-\rho)(\rho^2 + (1-\rho)^2)}{(nVar[X])^{\frac{3}{2}}}   $$
+Substituting the value of $Var[X]= \rho(1-\rho)$ we get 
+$$\gamma =  \frac{1}{\sqrt{n}} \Big( \frac{\rho^2 + (1-\rho)^2}{\sqrt{\rho(1-\rho)}} \Big)$$
+
+\EPF
+
+
+
+
+
+\BCM
+Let $\alpha - \epsilon \leq \beta \leq \alpha + \epsilon$, $A = Bin(\alpha n, \rho)$, $B = Bin((1-\alpha)n, \rho)$, $A^{'} = Bin(\beta n, \rho)$, $B^{'} = Bin((1-\beta) n, \rho)$. Then $$ \big| \Pr[B^{'}- A^{'}  \geq (\frac{1}{2} - \beta)n] - \Pr[B-A \geq (\frac{1}{2} - \alpha)n] \big| = O\Big(\frac{\epsilon}{\sqrt{\rho}}\Big).$$ When $\epsilon = \omega(\frac{1}{\sqrt{n}})$ .
+
+\ECM
+
+\BPF
+$$\big| \Pr[B^{'}- A^{'}  \geq (\frac{1}{2} - \beta)n] - \Pr[B-A \geq (\frac{1}{2} - \alpha)n] \big|$$ $$= \big|\big(1- \Pr[B^{'}- A^{'}  \leq (\frac{1}{2} - \beta)n]\big) - \big(1 - \Pr[B-A \leq (\frac{1}{2} - \alpha)n]\big) \big|$$  $$= \big| \Pr[B^{'}- A^{'}  \leq (\frac{1}{2} - \beta)n] - \Pr[B-A \leq (\frac{1}{2} - \alpha)n] \big|$$
+
+Using claim 1.8 we can write above equation as
+ $$= \Bigg| \Pr\bigg[S \leq (\frac{1}{2} - \beta)\sqrt{n} \frac{1-2\rho}{\sqrt{\rho(1-\rho)}}   \bigg] - \Pr\bigg[S \leq (\frac{1}{2} - \alpha)\sqrt{n} \frac{1-2\rho}{\sqrt{\rho(1-\rho)}}   \bigg] \Bigg| $$   
+
+We add and subtract CDF's of normal distribution in order to use Berry Esseen theorem.
+
+$$ =  \Bigg| \Pr\bigg[S \leq (\frac{1}{2} - \beta)\sqrt{n} \frac{1-2\rho}{\sqrt{\rho(1-\rho)}} \bigg] - \Phi((\frac{1}{2} - \beta)\sqrt{n} \frac{1-2\rho}{\sqrt{\rho(1-\rho)}}) + \Phi((\frac{1}{2} - \beta)\sqrt{n} \frac{1-2\rho}{\sqrt{\rho(1-\rho)}})$$  $$- \Phi((\frac{1}{2} - \alpha)\sqrt{n} \frac{1-2\rho}{\sqrt{\rho(1-\rho)}}) + \Phi((\frac{1}{2} - \alpha)\sqrt{n} \frac{1-2\rho}{\sqrt{\rho(1-\rho)}})- \Pr\bigg[S \leq (\frac{1}{2} - \alpha)\sqrt{n} \frac{1-2\rho}{\sqrt{\rho(1-\rho)}}\bigg] \Bigg| $$  
+
+Applying triangle inequality
+
+$$\leq \Bigg| \Pr\bigg[S \leq (\frac{1}{2} - \beta)\sqrt{n} \frac{1-2\rho}{\sqrt{\rho(1-\rho)}}\bigg] - \Phi((\frac{1}{2} - \beta)\sqrt{n} \frac{1-2\rho}{\sqrt{\rho(1-\rho)}})\Bigg|$$ $$ + \Bigg|\Phi((\frac{1}{2} - \beta)\sqrt{n} \frac{1-2\rho}{\sqrt{\rho(1-\rho)}}) - \Phi((\frac{1}{2} - \alpha)\sqrt{n} \frac{1-2\rho}{\sqrt{\rho(1-\rho)}})\Bigg|$$ $$ + \Bigg|\Phi((\frac{1}{2} - \alpha)\sqrt{n} \frac{1-2\rho}{\sqrt{\rho(1-\rho)}})- \Pr\bigg[S \leq (\frac{1}{2} - \alpha)\sqrt{n} \frac{1-2\rho}{\sqrt{\rho(1-\rho)}}\bigg] \Bigg| $$ using claim 1.7 and Berry-Esseen theorem 
+
+$$= O\Bigg(\frac{1}{\sqrt{n}} \Big( \frac{\rho^2 + (1-\rho)^2}{\sqrt{\rho(1-\rho)}} \Big)\Bigg) + O\Bigg(\epsilon \frac{1-2\rho}{\sqrt{\rho(1-\rho)}}\Bigg) + O\Bigg(\frac{1}{\sqrt{n}} \Big( \frac{\rho^2 + (1-\rho)^2}{\sqrt{\rho(1-\rho)}} \Big)\Bigg) $$
+
+Since we are considering $\epsilon = \omega(\frac{1}{\sqrt{n}})$ and $\rho \leq \frac{1}{2}$ the above equation will simplify to
+$$= O\Big(\frac{\epsilon}{\sqrt{\rho}}\Big)$$
+
+%$$ = \big| \Pr[B^{'}- A^{'}  \leq (\frac{1}{2} - \beta)n] - \Phi((\frac{1}{2} - \beta)n) + \Phi((\frac{1}{2} - \beta)n)  - \Phi() - \Pr[B-A \leq (\frac{1}{2} - \alpha)n] \big|$$
+
+\EPF
+
+
+\BT
+We can estimate $T_{\rho} \otimes Maj(X)$ to accuracy $\pm \gamma$ with $q= O(\frac{1}{\gamma^2 \rho}log\frac{1}{\delta})$ queries. 
+\ET
+
+\BPF 
+
+\textbf{Algorithm}\\
+Estimate the Hadamard weight of X by making  $O(\frac{1}{\gamma^2 \rho}log\frac{1}{\delta})$ queries and then calculate $T_{\rho} \otimes Maj(X)$ by using the formula in Claim 1.5. Instead of $\alpha$ use our estimate of hamming weight. 
+
+\textbf{Analysis}\\
+Let $\epsilon$ to be the error in the estimate of hamming weight and let $\rho$ be the noise parameter. Using Lemma 1.4 we have $\epsilon \leq \gamma \sqrt{\rho}$ if we make 
+$$O(\frac{1}{\gamma^2 \rho}log\frac{1}{\delta})$$
+queries. So $$\frac{\epsilon}{\sqrt{\rho}} \leq \gamma$$
+
+From claim 1.10 we know that the equation below is satisified if the above equation is satisified 
+
+$$ \big| \Pr[B^{'}- A^{'}  \geq (\frac{1}{2} - \beta)n] - \Pr[B-A \geq (\frac{1}{2} - \alpha)n] \big| \leq \gamma$$
+
+If we try to estimate the hamming weight and then calculate $T_{\rho} \otimes Maj(X)$, From Claim 1.5 we know that the error in our estimate is
+ 
+ $$ \big| \Pr[B^{'}- A^{'}  \geq (\frac{1}{2} - \beta)n] - \Pr[B-A \geq (\frac{1}{2} - \alpha)n] \big| $$
+ 
+Hence our estimate of $T_{\rho} \otimes Maj(X)$ is accurate up to error $\pm \gamma$
+\EPF
+
+
+\subsection{Tribes Function}
+
+
+In the case of Majority we were able to estimate $T_{\rho} \otimes Maj(X)$ well using the estimate of hamming weight.  Lets try to see if $T_{\rho} \otimes Tribes(X)$ can be estimated well using hamming weight. We will be considering the unbiased tribes function. An unbiased tribes function with n variables will be having $width \simeq \log n - \log \log n$. 
+
+\BT
+Even with a good estimate of hamming weight of X, we cannot estimate $T_{\rho} \otimes Tribes(X)$.
+
+\ET
+ 
+ To prove this we will be looking at two inputs $X_1, X_2$ with same hamming weight and show that $| T_{\rho} \otimes Tribes(X_1) - T_{\rho} \otimes Tribes(X_2)|$ large for a constant $\rho$.
+
+\BCM
+Let input $X_1= (11...10...00)(11...10...00)......(11...10...00)$. In $X_1$ each clause has half 1's and half 0's. $T_{\rho} \otimes Tribes(X_1) \leq O(\frac{1}{n^3})$, for noise parameter $\rho = \frac{1}{2^{10}}$.
+
+\ECM
+
+\BPF
+From Definition 1.1 $$T_{\rho} \otimes Tribes(X_1) = \underset{Y_1 \sim N_{\rho}(X_1)}{\mathbb{E}}[Tribes(Y_1)]$$
+and $Tribes(Y_1) \leq$ Number of clauses true in $Y_1$. Hence 
+$${\mathbb{E}}[Tribes(Y_1)] \leq {\mathbb{E}}[\text{Number of clauses true in } Y_1]$$
+
+The probability that a clause is true is 
+
+$$\leq \Big(\frac{1}{2^{10}} \Big)^{\frac{\log n -\log \log n}{den}} $$
+
+On using union bound 
+$${\mathbb{E}}[\text{Number of clauses true in } Y_1] \leq \Big(\frac{1}{2^{10}} \Big)^{\frac{\log n -\log \log n}{den}} \frac{n}{\log n - \log \log n} $$
+
+$$= \frac{(\log n)^5}{n^5} \frac{n}{\log n - \log \log n}$$
+$$\leq O\Big(\frac{1}{n^3}\Big)$$
+
+\EPF
+
+\BCM
+Let input $X_3 = (11...11)(11...11).....(11...11)(11...11).....(11...11)(11...11)$. Then $T_{\rho} \otimes Tribes(X_3) \geq \frac{1}{2}$, for $\rho \leq \frac{1}{2}$.
+\ECM
+
+\BPF
+The function we are considering is unbiased so 
+$$T_{\frac{1}{2}} \otimes Tribes(X_3) = \frac{1}{2}$$
+This is because having $\rho = \frac{1}{2}$ is equivalent to generating a random n-bit string. For $\rho \leq \frac{1}{2}$ 
+$$\underset{Y_3 \sim N_{\frac{1}{2}}(X_3)}{\mathbb{E}}[Tribes(Y_3)] \leq \underset{Y_3 \sim N_{\rho}(X_3)}{\mathbb{E}}[Tribes(Y_3)]$$
+Since we are starting with all 1's the probability that the output is 1 is less if there is more noise. From the above two equations and definition 1.1 you can conclude that 
+$$T_{\rho} \otimes Tribes(X_3) \geq \frac{1}{2}$$ for $\rho \leq \frac{1}{2}$.
+ 
+\EPF
+
+The above bound is very loose. But to prove our theorem that is enough.
+
+\BCM
+Let input $X_4 = (11...11)(11...11).....(11...11)$. $X_4$ is the first half of input $X_2$, it has $\frac{n}{2}$ bits. Then $\underset{Y_4 \sim N_{\rho}(X_4)}{\mathbb{E}}[\text{Atleast one clause is true in }Y_4] \geq \frac{1}{4}$. For $\rho \leq \frac{1}{2}$.
+
+\ECM
+
+\BPF
+$X_3$ can be looked at as concatenation of two $X_4 {'} s$. So using union bound
+$$\underset{Y_3 \sim N_{\rho}(X_3)}{\mathbb{E}}[Tribes(Y_3)] \leq 2\underset{Y_4 \sim N_{\rho}(X_4)}{\mathbb{E}}[\text{Atleast one clause is true in }Y_4]$$
+Using Claim 1.14 and the above equation we can conclude that
+$$\underset{Y_4 \sim N_{\rho}(X_4)}{\mathbb{E}}[\text{Atleast one clause is true in }Y_4] \geq \frac{1}{4}$$
+ 
+
+\EPF
+
+
+
+
+\BCM
+Let input $X_2 = (11...11)(11...11).....(11...11)(00...00).....(00...00)(00...00)$. In $X_2$ you have first half of the clauses all 1's and the second half all 0's. Then $T_{\rho} \otimes Tribes(X_2) \geq \frac{1}{4}$ for $\rho \leq \frac{1}{2}$.
+
+\ECM
+
+\BPF
+Since $X_2$ is just a concatenation of $X_4$ with 0's. We have the following inequality
+
+$$T_{\rho} \otimes Tribes(X_2) = \underset{Y_2 \sim N_{\rho}(X_2)}{\mathbb{E}}[Tribes(Y_2)]  \geq \underset{Y_4 \sim N_{\rho}(X_4)}{\mathbb{E}}[\text{Atleast one clause is true in }Y_4]$$
+
+And from Claim 1.15 we can conclude that 
+$$T_{\rho} \otimes Tribes(X_2) \geq \frac{1}{4}$$
+for $\rho \leq \frac{1}{2}$.
+\EPF
+
+\BT
+Even with a good estimate of hamming weight of X, we cannot estimate $T_{\rho} \otimes Tribes(X)$.
+
+\ET
+
+\BPF
+From Claim 1.13 and Claim 1.16. We have shown two inputs $X_1$ and $X_2$ both with same hamming weight($\frac{1}{2}$) but  $| T_{\rho} \otimes Tribes(X_1) - T_{\rho} \otimes Tribes(X_2)| \geq c$. Where c is a constant less than $\frac{1}{4}$. Hence we can conclude that even though we have the exact hamming weight of X its not enough to estimate $T_{\rho} \otimes Tribes(X)$ accurately.
+
+\EPF
+
+
+
+% hamming
+
+\iffalse
+
+
+\subsection{Biased Noise Operator}
+
+\BD
+$T^{+}_{\rho}(f,x)= \underset{y \sim N_{\rho}(x)}{\mathbb{E}}[f(y)]$
+\ED
+ 
+ 
+\noindent
+For $T^{+}_{\rho}(f,x)$
+\BE
+ \item $\rho = 0$ : same as the previous case.
+ \item $\rho = \frac{1}{2}$ : Not the same as previous case.
+\EE 
+
+\noindent
+ Options we are left with
+\BE
+\item Abandon worst case.
+\item Change notion of success.
+ \item Restrict the problem set $\rho= \frac{1}{4}$.(We will be looking at this first)
+\EE
+
+
+
+ 
+
+
+\BCM
+ Fix $X \in \{0,1\}^n$, let $\alpha = \frac{\|X\|}{n}$, let $A \sim Bin((1-\alpha)n, \frac{1}{4})$. Then $T_{\frac{1}{4}}^+ (f,x) = Pr[A \geq (\frac{1}{2} - \alpha)n]$.
+\ECM
+\BPF
+By definition.
+\EPF
+
+\BT
+\textbf{Kolmogorov-Rogozin 1959-61:} Let X be a random variable,  $\lambda>0$ be a constant, I be an interval and $Q(\lambda, X) = sup_{|I|=\lambda} \textbf{P}(X \in I)$. $S = X_1 + \cdots + X_n$ where $X_i$ are independent. Then $Q(\lambda, S) = O\Big(\frac{1}{\sqrt{\sum_{1}^{n}(1- Q(\lambda, X_i))}}\Big)$
+\ET
+
+\BCM
+Let $\alpha$, $\beta$, $\rho$ be fixed. $A \sim Bin((1-\alpha)n, \rho)$, then $\big| Pr[A \geq (\frac{1}{2} - \beta)n] - Pr[A \geq (\frac{1}{2} - \alpha)n] \big| \leq O\Big(\frac{1}{\sqrt{n\rho(1-\alpha)}}\Big)$.
+\ECM
+\BPF
+Let $X_i$ be a Bernoulli random variable with a success probability $\rho$, then $\forall \lambda > 0$, $Q(\lambda, X_i)= \rho$. Since $A = \Sigma_{i = 1}^{(1-\alpha)n} X_i$, from Theorem 1.5 we get $ \forall\lambda>0$, $Q(\lambda, A) = O\Big(\frac{1}{\sqrt{n\rho(1-\alpha)}}\Big)$.
+\EPF
+
+
+\BCM
+Fix X, $\alpha$, $\epsilon > 0$. Let $A \sim Bin((1-\alpha)n, \frac{1}{4})$, $B \sim Bin((1-\beta)n, \frac{1}{4})$. Let $\alpha - \epsilon \leq \beta \leq \alpha + \epsilon$. Then $\big| Pr[B \geq (\frac{1}{2} - \beta)n] - Pr[A \geq (\frac{1}{2} - \alpha)n] \big| \leq \gamma$.
+\ECM
+\BPF
+\\ \noindent
+We directly can't compare $Pr[B \geq (\frac{1}{2} - \beta)n]$ and $Pr[A \geq (\frac{1}{2} - \alpha)n]$. So we bring in an intermediate quantity $Pr[A \geq (\frac{1}{2} - \beta)n]$. To upper bound $\big| Pr[B \geq (\frac{1}{2} - \beta)n] - Pr[A \geq (\frac{1}{2} - \alpha)n] \big|$ we upper bound $\big| Pr[A \geq (\frac{1}{2} - \beta)n] - Pr[A \geq (\frac{1}{2} - \alpha)n] \big|$ and $\big| Pr[B \geq (\frac{1}{2} - \beta)n] - Pr[A \geq (\frac{1}{2} - \beta)n] \big|$ separately and add the bounds. From Claim 1.6 we already have a bound on $\big| Pr[A \geq (\frac{1}{2} - \beta)n] - Pr[A \geq (\frac{1}{2} - \alpha)n] \big|$, so if could get a bound for $\big| Pr[B \geq (\frac{1}{2} - \beta)n] - Pr[A \geq (\frac{1}{2} - \beta)n] \big|$ we are done.
+
+%\textbf{Case 1: $\beta = \alpha + \epsilon$} \\ \noindent
+%Want to show $Pr[A \geq (\frac{1}{2} - \alpha- \epsilon)n] - Pr[A \geq (\frac{1}{2} - \alpha)n] \leq \gamma$. This is same as $Pr[(\frac{1}{2} - \alpha- %\epsilon)n \leq A < (\frac{1}{2} - \alpha)n] \leq \gamma$.
+
+\EPF
+
+%Let $$y_i = $$       
+ 
+\fi 
+
+
+
+%intersection. Then for any element $u\in \Omega_1$ there is an element $g_1 \in G$ such
+%that $u^{g_1} = x$ and for any element $v\in \Omega_2$ there is an element $g_2\in G$ such
+%that $v^{g_2}=v$. Thus the element $g_1g_2\in G$ maps $u$ to $v$, and so these orbits
+%are equal. \EPF
+
+
+\end{document}
